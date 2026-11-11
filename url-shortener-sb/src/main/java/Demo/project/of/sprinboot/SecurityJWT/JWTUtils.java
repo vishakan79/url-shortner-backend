@@ -59,15 +59,17 @@ public class JWTUtils {
             Jwts.parser().verifyWith((SecretKey) key())
                    .build().parseSignedClaims(authtoken);
             return true;
-        } catch (JwtException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException(e);
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
         }
     }
 
     private Key key(){
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+        byte[] bytes = jwtSecret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        if (bytes.length < 32) {
+            throw new IllegalStateException("jwt.secret must be at least 32 characters");
+        }
+        return Keys.hmacShaKeyFor(bytes);
     }
 
 }

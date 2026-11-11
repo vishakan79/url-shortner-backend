@@ -30,7 +30,7 @@ public class UrlMappingController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<UrlMappingDto> createshorturl(@RequestBody Map<String ,String> request, Principal principal)
     {
-       String originalurl = request.get("originalUrl");
+        String originalurl = request.get("originalUrl");
         User user =userservice.findbyusername(principal.getName());
         UrlMappingDto urlMappingDto = urlmappingService.createShortUrl(originalurl,user);
         return ResponseEntity.ok(urlMappingDto);
@@ -48,11 +48,12 @@ public class UrlMappingController {
 
     @GetMapping("/analytics/{shortUrl}")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<ClickEventDTO>> geturlAnalystics(@PathVariable String shortUrl,@RequestParam("startdate") String startdate,@RequestParam("enddate") String enddate){
+    public ResponseEntity<List<ClickEventDTO>> geturlAnalystics(@PathVariable String shortUrl,@RequestParam("startdate") String startdate,@RequestParam("enddate") String enddate, Principal principal){
+        User user = userservice.findbyusername(principal.getName());
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
         LocalDateTime startDate = LocalDateTime.parse(startdate,formatter);
         LocalDateTime endDate = LocalDateTime.parse(enddate,formatter);
-        List<ClickEventDTO> clickEventDTOS =urlmappingService.getclickeventbydate(shortUrl,startDate,endDate);
+        List<ClickEventDTO> clickEventDTOS =urlmappingService.getclickeventbydate(shortUrl,startDate,endDate,user);
         return ResponseEntity.ok(clickEventDTOS);
     }
 

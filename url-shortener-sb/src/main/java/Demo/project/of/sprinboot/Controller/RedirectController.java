@@ -9,21 +9,34 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
+
 @RestController
 @AllArgsConstructor
 public class RedirectController {
-    private URLmappingService  urlmappingService;
+    private URLmappingService urlmappingService;
 
     @GetMapping("/{shorturl}")
-    public ResponseEntity<Void> redirect(@PathVariable String shorturl){
-        UrlMapping urlMapping =urlmappingService.getOriginalUrl(shorturl);
-        if(urlMapping!=null){
-            HttpHeaders Httpheaders = new HttpHeaders();
-            Httpheaders.add("Location",urlMapping.getOriginalurl());
-           return  ResponseEntity.status(302).headers(Httpheaders).build();
-        }
-        else {
+    public ResponseEntity<Void> redirect(@PathVariable String shorturl) {
+        if (!shorturl.matches("[A-Za-z0-9]{4,12}")) {
             return ResponseEntity.notFound().build();
         }
+        UrlMapping urlMapping = urlmappingService.getOriginalUrl(shorturl);
+        if (urlMapping == null) {
+            return ResponseEntity.notFound().build();
+        }
+        String target = urlMapping.getOriginalurl();
+        if (!target.matches("(?i)^https?://.*")) {
+            target = "https://" + target;
+        }
+        return ResponseEntity.status(302)
+                .header(HttpHeaders.LOCATION, URI.create(target).toASCIIString())
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .build();
+    }
+
+    @GetMapping("/api/health")
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("ok");
     }
 }

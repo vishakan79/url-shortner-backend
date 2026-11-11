@@ -36,6 +36,13 @@ public class Userservice {
     }
 
     public User  registerUser(User user){
+        if (user.getUsername() == null || user.getUsername().isBlank()
+                || user.getPassword() == null || user.getPassword().length() < 6) {
+            throw new IllegalArgumentException("Username and a password of at least 6 characters are required");
+        }
+        if (userResposiory.findByUsername(user.getUsername()).isPresent()) {
+            throw new IllegalStateException("Username already exists");
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userResposiory.save(user);
     }
