@@ -36,6 +36,14 @@ public class UrlMappingController {
         return ResponseEntity.ok(urlMappingDto);
 
     }
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Void> deleteUrl(@PathVariable Long id, Principal principal) {
+        User user = userservice.findbyusername(principal.getName());
+        urlmappingService.deleteUrl(id, user);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/myurls")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<UrlMappingDto>> getMyurls(Principal principal){

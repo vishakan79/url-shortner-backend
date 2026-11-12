@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ClickEventRespostiory extends JpaRepository<clickevent,Long> {
+    void deleteByUrlmapping(UrlMapping mapping);
+
     List<clickevent> findByUrlmappingAndClickeventBetween(
             UrlMapping mapping,
             LocalDateTime startDate,

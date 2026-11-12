@@ -90,6 +90,15 @@ public class URLmappingService {
         return dto;
     }
 
+    @Transactional
+    public void deleteUrl(Long id, User user) {
+        UrlMapping mapping = urlMappingRespository.findById(id)
+                .filter(m -> m.getUser() != null && m.getUser().getId().equals(user.getId()))
+                .orElseThrow(() -> new IllegalArgumentException("Link not found"));
+        clickEventRespostiory.deleteByUrlmapping(mapping);
+        urlMappingRespository.delete(mapping);
+    }
+
     @Transactional(readOnly = true)
     public List<UrlMappingDto> geturlsuser(User user) {
         return urlMappingRespository.findByUserOrderByCreatedDateDesc(user).stream()
